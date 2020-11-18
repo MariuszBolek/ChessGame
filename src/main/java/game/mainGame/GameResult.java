@@ -2,20 +2,7 @@ package game.mainGame;
 
 public class GameResult {
 
-    private final int nbMoves;
-    private final Result result;
-
     public GameResult(int nbMoves, Result result) {
-        this.nbMoves = nbMoves;
-        this.result = result;
-    }
-
-    public int getNbMoves() {
-        return nbMoves;
-    }
-
-    public Result getResult() {
-        return result;
     }
 
     public enum Result {

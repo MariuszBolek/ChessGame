@@ -20,7 +20,6 @@ public class Game {
     final List<Move> history;
     PieceColor toPlay;
     GameState state;
-    String opening;
 
     public Game(Player whitePlayer, Player blackPlayer) {
         this.whitePlayer = whitePlayer;
@@ -61,14 +60,6 @@ public class Game {
 
     public void setState(GameState state) {
         this.state = state;
-    }
-
-    public String getOpening() {
-        return opening;
-    }
-
-    public void setOpening(String opening) {
-        this.opening = opening;
     }
 
     public void addMoveToHistory(Move move) {

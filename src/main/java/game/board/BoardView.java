@@ -14,11 +14,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.ListIterator;
-import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -33,7 +30,7 @@ public class BoardView extends JFrame implements BoardInterface {
     private final Container contentPane;
 
     private final PropertyReader reader;
-    private Square[][] squares = new Square[SIZE][SIZE];
+    private final Square[][] squares = new Square[SIZE][SIZE];
 
     private JMenuItem itemNew;
     private JMenuItem itemPrintToConsole;
@@ -80,6 +77,7 @@ public class BoardView extends JFrame implements BoardInterface {
         itemProposeDraw.addActionListener(actionListener);
     }
 
+    /**Method displays the board and places pieces  */
     public void display(Piece[][] positions, boolean isReversed) {
         java.util.List<Component> components = new ArrayList<>((SIZE + 2) ^ 2);
         addFilesLabels(components);
@@ -89,7 +87,6 @@ public class BoardView extends JFrame implements BoardInterface {
             background = getFirstSquareBackground(i);
             for (int j = 0; j < positions[i].length; j++) {
                 Piece piece = positions[i][j];
-                // Inverse coordinates (positions is a 2D array, reversed)
                 Square square = new Square(piece, new Position(j, i), background, reader.getPieceFont());
                 background = swapBackground(background);
                 components.add(square);
@@ -110,17 +107,17 @@ public class BoardView extends JFrame implements BoardInterface {
         setVisible(visible);
     }
 
+    /** Refreshes positions of all pieces, one square by one */
     public void refresh(Piece[][] positions) {
         for (int i = positions.length - 1; i >= 0; i--) {
             for (int j = 0; j < positions[i].length; j++) {
                 Piece piece = positions[i][j];
-                // get current square, so that only its label is updated
                 squares[i][j].setPiece(piece);
             }
         }
     }
 
-    public void resetAllClickables() {
+    public void resetAllClickedSquares() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 Square square = squares[i][j];
@@ -146,27 +143,8 @@ public class BoardView extends JFrame implements BoardInterface {
         to.setBorder(GREEN_BORDER);
     }
 
-    public Optional<File> saveGameDialog() {
-        final JFileChooser fileChooser = new JFileChooser();
-        int returnVal = fileChooser.showSaveDialog(this);
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            return Optional.of(fileChooser.getSelectedFile());
-        }
-        return Optional.empty();
-    }
-
-    public Optional<File> loadGameDialog() {
-        final JFileChooser fileChooser = new JFileChooser();
-        int returnVal = fileChooser.showOpenDialog(this);
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            return Optional.of(fileChooser.getSelectedFile());
-        }
-        return Optional.empty();
-    }
-
-    public PrepareGameBoard prepareGameDialog(CreateOpponent CreateOpponent, boolean exitOnCancel) {
+    /** Method displays options related to creation of new game */
+    public PrepareGameBoard createNewGameOptions(CreateOpponent CreateOpponent, boolean exitOnCancel) {
 
         JLabel colorLabel = new JLabel("Your color");
         setBoldAndBorder(colorLabel);
@@ -200,7 +178,7 @@ public class BoardView extends JFrame implements BoardInterface {
 
         Player human = new Human("Player");
         Player bot;
-//
+
         bot = CreateOpponent.getBot();
 
 
@@ -215,8 +193,9 @@ public class BoardView extends JFrame implements BoardInterface {
         return new PrepareGameBoard(whitePlayer, blackPlayer);
     }
 
+    /** Method displays dialog options related to pawn promotion and  replaces pawn after selecting appropriate piece*/
     public Piece promotionDialog(PieceColor color) {
-        JLabel funLabel = new JLabel("Wow! Your pawn jus reached the end of the world!\n");
+        JLabel funLabel = new JLabel("Congratulations! Your pawn reached end of the board and is eligible for promotion\n");
         JLabel promoteLabel = new JLabel("Promote pawn to");
         setBoldAndBorder(promoteLabel);
         JRadioButton queenRadioButton = new JRadioButton("♕ Queen", true);
@@ -309,10 +288,10 @@ public class BoardView extends JFrame implements BoardInterface {
     }
 
     private void addFilesLabels(java.util.List<Component> components) {
-        char a = 'a';
-        char h = 'h';
+        char A = 'A';
+        char H = 'H';
         components.add(new Label(""));
-        Stream<Integer> intStream = IntStream.range(a, h + 1).boxed();
+        Stream<Integer> intStream = IntStream.range(A, H + 1).boxed();
         intStream.forEach(i -> components.add(new Label(Character.toString((char) (int) i))));
         components.add(new Label(""));
     }

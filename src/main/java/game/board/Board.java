@@ -45,19 +45,7 @@ public class Board{
         return builder.toString();
     }
 
-    public Board copy() {
-        Board clone = new Board(new Piece[SIZE][SIZE]);
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                Optional<Piece> piece = getPiece(i, j);
-                if (piece.isPresent()) {
-                    clone.setPiece(i, j, piece.get().copy());
-                }
-            }
-        }
-        return clone;
-    }
-
+    /** Method moves piece. Method designed for each 3 move types - regular, en passant and castling */
     public void doMove(Move move) {
         removePiece(move.getFromX(), move.getFromY());
         Piece piece = move.getPiece();
@@ -76,6 +64,7 @@ public class Board{
         }
     }
 
+    /** Method undoes last move. Can be used to undo moves till the beginning of the game */
     public void undoMove(Move move) {
         removePiece(move.getToX(), move.getToY());
         Piece piece = move.getPiece();
@@ -100,26 +89,9 @@ public class Board{
         board[y][x] = piece;
     }
 
-    private Optional<Piece> removePiece(int x, int y) {
+    private void removePiece(int x, int y) {
         Optional<Piece> toRemove = getPiece(x, y);
         board[y][x] = null;
-        return toRemove;
     }
 
-//    private Piece[][] fromString(String value) {
-//        Piece[][] pieces = new Piece[SIZE][SIZE];
-//        String[] lines = value.split("\n");
-//        assert lines.length == SIZE;
-//        for (int i = 0; i < SIZE; i++) {
-//            String line = lines[i];
-//            // Every piece is followed by a space, just ignore the spaces
-//            for (int j = 0; j < SIZE; j++) {
-//                char c = line.charAt(2 * j);
-//                if (c != ' ') {
-//                    pieces[SIZE-1-i][j] = Piece.fromUnicodeChar(c);
-//                }
-//            }
-//        }
-//        return pieces;
-//    }
 }

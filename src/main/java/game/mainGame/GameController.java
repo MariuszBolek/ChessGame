@@ -60,29 +60,29 @@ public class GameController {
 
     void initView(Board board) {
         refreshBoardView(board);
-        boardInterface.setItemNewActionListener(actionEvent -> {
-            newGame(null, false, r -> {});
-        });
+        boardInterface.setItemNewActionListener(actionEvent -> newGame(null, false, r -> {}));
         boardInterface.setItemPrintToConsoleActionListener(actionEvent -> printGameToConsole());
         boardInterface.setItemUndoMoveActionListener(actionEvent -> undoLastMove());
         boardInterface.setItemProposeDrawActionListener(actionEvent -> evaluateDrawProposal());
     }
 
+    /** Creates new game when option is selected from menu */
     public void newGame(PrepareGameBoard prepareGameBoard, boolean exitOnCancel, Consumer<GameResult> gameResultConsumer) {
         if (prepareGameBoard == null) {
-            PrepareGameBoard prepareGameBoardFromDialog = boardInterface.prepareGameDialog(createOpponent, exitOnCancel);
+            PrepareGameBoard prepareGameBoardFromDialog = boardInterface.createNewGameOptions(createOpponent, exitOnCancel);
             if (prepareGameBoardFromDialog == null && !exitOnCancel) {
                 return;
             } else {
                 prepareGameBoard = prepareGameBoardFromDialog;
             }
         }
+        assert prepareGameBoard != null;
         this.game = createGame.createGame(prepareGameBoard);
         this.board = game.getBoard();
         this.gameResultConsumer = gameResultConsumer;
         refreshBoardView(board);
         cleanSelectedSquare();
-//        initView(createGame.emptyGame().getBoard());
+
         if (game.canBePlayed()) {
             play();
         }
@@ -100,6 +100,7 @@ public class GameController {
         SwingUtilities.invokeLater(this::playNextMove);
     }
 
+ /** Computes and selects best bot move */
     void playNextMove() {
         while (game.getPlayerToPlay().isBot() && isGameOver(game)) {
             Player player = game.getPlayerToPlay();
@@ -120,15 +121,12 @@ public class GameController {
                 throw new RuntimeException("Move computation failed", e);
             }
             Instant end = Instant.now();
-            boolean showTiming = true;
-            if (showTiming) {
-                logger.debug("Time to select move by bot: {}", Duration.between(start, end));
-            }
+            logger.debug("Time to select move by bot: {}", Duration.between(start, end));
             doMove(move);
         }
 
         if (!game.getPlayerToPlay().isBot() && isGameOver(game)) {
-            boardInterface.resetAllClickables();
+            boardInterface.resetAllClickedSquares();
             markSquaresClickableByColor(game.getToPlay());
         }
     }
@@ -138,7 +136,7 @@ public class GameController {
         boardInterface.cleanSquaresBorder();
         if (!player.isBot()) {
             cleanSelectedSquare();
-            boardInterface.resetAllClickables();
+            boardInterface.resetAllClickedSquares();
         }
 
         List<Move> matchingMoves = moveService
@@ -190,7 +188,7 @@ public class GameController {
         if (!player.isBot()) {
             cleanSelectedSquare();
             boardInterface.cleanSquaresBorder();
-            boardInterface.resetAllClickables();
+            boardInterface.resetAllClickedSquares();
         }
 
         board.undoMove(move);
@@ -282,7 +280,7 @@ public class GameController {
                     try {
                         squareClicked(square);
                     } catch (Exception exception) {
-                        error(exception, true);
+                        error(exception);
                     }
                 }
 
@@ -300,10 +298,10 @@ public class GameController {
     private void squareClicked(Square square) {
         if (selectedSquare != null) {
             if (selectedSquare == square) {
-                // cancel current selection
+
                 boardInterface.cleanSquaresBorder();
                 cleanSelectedSquare();
-                boardInterface.resetAllClickables();
+                boardInterface.resetAllClickedSquares();
                 markSquaresClickableByColor(game.getToPlay());
             } else {
                 doMove(new Move(selectedSquare.getPiece(), selectedSquare.getPosition().getX(), selectedSquare.getPosition().getY(), square.getPosition().getX(), square.getPosition().getY()));
@@ -314,8 +312,7 @@ public class GameController {
                 if (square.getPiece().getColor() == game.getToPlay()) {
                     selectedSquare = square;
                     boardInterface.cleanSquaresBorder();
-                    boardInterface.resetAllClickables();
-                    // Self piece is clickable so that it selection can be cancelled
+                    boardInterface.resetAllClickedSquares();
                     markSquareClickable(square);
                     square.setBorder(RED_BORDER);
                     List<Move> moves = moveService.computeMoves(board, square.getPiece(), square.getPosition().getX(),
@@ -341,11 +338,9 @@ public class GameController {
         }
     }
 
-    private void error(Exception exception, boolean withPopup) {
+    private void error(Exception exception) {
         logger.error("An error happened: {}", exception.getMessage(), exception);
-        if (withPopup) {
-            boardInterface.popupError(exception.getMessage());
-        }
+        boardInterface.popupError(exception.getMessage());
     }
 
     private boolean isGameOver(Game game) {
@@ -375,16 +370,16 @@ public class GameController {
     void evaluateDrawProposal() {
         Player playerWaiting = game.getPlayerWaiting();
         if (playerWaiting.isBot()) {
-            boolean drawAccepted = ((Bot) playerWaiting).isDrawAcceptable(game);
+            boolean drawAccepted = ((Bot) playerWaiting).isDrawAcceptable();
             if (drawAccepted) {
-                info("Hmmm OK, I hate draws but you played quite well... Accepted!", true);
+                info("Sure, I accept the draw", true);
                 game.setState(GameState.DRAW_AGREEMENT);
                 cleanSelectedSquare();
                 boardInterface.cleanSquaresBorder();
-                boardInterface.resetAllClickables();
+                boardInterface.resetAllClickedSquares();
                 displayGameInfo(null);
             } else {
-                info("Are you kidding me? A champion like me can't accept such proposal (at least not now).", true);
+                info("Thanks, but I play for the win", true);
             }
         } else {
             info("Sorry, it is not your turn", true);

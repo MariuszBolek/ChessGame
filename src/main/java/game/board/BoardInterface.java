@@ -7,8 +7,6 @@ import game.enums.PieceColor;
 import game.players.CreateOpponent;
 
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.Optional;
 
 public interface BoardInterface {
     Square[][] getSquares();
@@ -27,17 +25,13 @@ public interface BoardInterface {
 
     void refresh(Piece[][] positions);
 
-    void resetAllClickables();
+    void resetAllClickedSquares();
 
     void cleanSquaresBorder();
 
     void addBorderToLastMoveSquares(Move move);
 
-    Optional<File> saveGameDialog();
-
-    Optional<File> loadGameDialog();
-
-    PrepareGameBoard prepareGameDialog(CreateOpponent CreateOpponent, boolean exitOnCancel);
+    PrepareGameBoard createNewGameOptions(CreateOpponent CreateOpponent, boolean exitOnCancel);
 
     Piece promotionDialog(PieceColor color);
 

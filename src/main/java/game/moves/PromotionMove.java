@@ -26,8 +26,4 @@ public class PromotionMove extends Move {
         return super.equals(o);
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
 }

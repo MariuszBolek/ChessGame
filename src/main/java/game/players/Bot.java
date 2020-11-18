@@ -24,7 +24,7 @@ public  class Bot extends Player{
         return moves.get(RANDOM.nextInt(moves.size()));
     }
 
-    public boolean isDrawAcceptable(Game game) {
+    public boolean isDrawAcceptable() {
        return RANDOM.nextBoolean();
     }
 }

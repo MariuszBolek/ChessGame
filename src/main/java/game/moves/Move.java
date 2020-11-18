@@ -1,8 +1,6 @@
 package game.moves;
 
-import game.pieces.Pawn;
 import game.pieces.Piece;
-import game.enums.PieceColor;
 
 import java.util.Objects;
 
@@ -64,13 +62,12 @@ public class Move {
     }
 
     public String getPrettyNotation() {
-        String builder = piece.getColor() +
+        return piece.getColor() +
                 " " +
                 getBasicNotation() +
                 " (" +
                 piece.getClass().getSimpleName() +
                 ")";
-        return builder;
     }
 
     public String getBasicNotation() {
@@ -86,68 +83,9 @@ public class Move {
         return builder.toString();
     }
 
-    public static Move fromBasicNotation(String notation, PieceColor color) {
-        if (notation == null || color == null) {
-            throw new IllegalArgumentException("Unexpected format for basic notation move: " + notation + " (" + color + ")");
-        }
-
-        Move move;
-        if (notation.equalsIgnoreCase("0-0")) {
-            if (color == PieceColor.WHITE) {
-                move = new CastlingMove(null, 4, 0, 6, 0, null, 7, 0, 5, 0);
-            } else {
-                move = new CastlingMove(null, 4, 7, 6, 7, null, 7, 7, 5, 7);
-            }
-            if (notation.indexOf('+') > -1) {
-                move.setChecking(true);
-            }
-            return move;
-        } else if (notation.equalsIgnoreCase("0-0-0")) {
-            if (color == PieceColor.WHITE) {
-                move = new CastlingMove(null, 4, 0, 2, 0, null, 0, 0, 3, 0);
-            } else {
-                move = new CastlingMove(null, 4, 7, 2, 7, null, 0, 7, 3, 7);
-            }
-            if (notation.indexOf('+') > -1) {
-                move.setChecking(true);
-            }
-            return move;
-        }
-
-        if (notation.length() < 5) {
-           
-            throw new IllegalArgumentException("Unexpected format for basic notation move: " + notation);
-        }
-        char fromXChar = notation.charAt(0);
-        char fromYChar = notation.charAt(1);
-        char takingChar = notation.charAt(2);
-        char toXChar = notation.charAt(3);
-        char toYChar = notation.charAt(4);
-
-        move = new Move(null, convertCharToX(fromXChar), Character.getNumericValue(fromYChar) - 1,
-                convertCharToX(toXChar), Character.getNumericValue(toYChar) - 1);
-
-        if (notation.indexOf('+') > -1) {
-            move.setChecking(true);
-        }
-
-        if (takingChar == 'x') {
-
-            move.setTookPiece(new Pawn(color == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE));
-        }
-
-        return move;
-    }
-
     public static String convertXToChar(int x) {
         final int aAscii = 'a';
         return String.valueOf((char) (aAscii + x));
-    }
-
-    public static int convertCharToX(char character) {
-        final int aAscii = 'a';
-        final int charAscii = character;
-        return charAscii - aAscii;
     }
 
     public boolean equalsForPositions(Move move) {

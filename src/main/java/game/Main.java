@@ -11,13 +11,10 @@ import game.players.CreateOpponent;
 import game.players.Human;
 
 import game.tools.PropertyReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 
 public class Main implements Runnable {
-    private final static Logger logger = LoggerFactory.getLogger(Main.class);
     private final MoveService moveService = new MoveService();
 
     private final PropertyReader propertyReader = new PropertyReader();
